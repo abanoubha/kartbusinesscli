@@ -1,0 +1,6 @@
+# executables
+kartbusiness
+main
+
+# macOS specific files
+.DS_Store
