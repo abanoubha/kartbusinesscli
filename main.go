@@ -8,6 +8,7 @@ import (
 
 var (
 	list   bool
+	update bool
 	search string
 )
 
@@ -20,10 +21,13 @@ func main() {
 kartbusiness               # show business cards one by one.
 kartbusiness -l            # show business cards one by one.
 kartbusiness -s "Abanoub"  # search all cards for "Abanoub".
+kartbusiness -u            # update/sync local database with new cards.
 `,
 	}
 
 	rootCmd.Flags().BoolVarP(&list, "list", "l", false, "show business cards one by one")
+
+	rootCmd.Flags().BoolVarP(&update, "update", "u", false, "update local database with new cards")
 
 	rootCmd.Flags().StringVarP(&search, "search", "s", "", "search all cards")
 
@@ -32,6 +36,8 @@ kartbusiness -s "Abanoub"  # search all cards for "Abanoub".
 			showAllCards()
 		} else if search != "" {
 			searchCards(search)
+		} else if update {
+			syncData()
 		} else {
 			fmt.Println("KartBusiness : see all digital business cards published on KartBusiness.com")
 			showAllCards()
@@ -49,4 +55,8 @@ func showAllCards() {
 
 func searchCards(search string) {
 	fmt.Println("cards containing ", search)
+}
+
+func syncData() {
+
 }
