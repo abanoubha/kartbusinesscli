@@ -5,7 +5,7 @@ You can access all [digital business cards](https://kartbusiness.com) published 
 ## Build from source
 
 ```sh
-go mod tidy && go build -o kartbusiness main.go
+go mod tidy && go build -o kartbusiness .
 ```
 
 To run it, use.
