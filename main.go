@@ -15,6 +15,7 @@ var (
 	list   bool
 	update bool
 	search string
+	card   int
 )
 
 func main() {
@@ -35,6 +36,7 @@ kartbusiness               # show business cards one by one.
 kartbusiness -l            # show business cards one by one.
 kartbusiness -s "Abanoub"  # search all cards for "Abanoub".
 kartbusiness -u            # update/sync local database with new cards.
+kartbusiness -c            # show specific card by ID.
 `,
 	}
 
@@ -44,6 +46,8 @@ kartbusiness -u            # update/sync local database with new cards.
 
 	rootCmd.Flags().StringVarP(&search, "search", "s", "", "search all cards")
 
+	rootCmd.Flags().IntVarP(&card, "card", "c", 1, "show a card")
+
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
 		if list {
 			showAllCards()
@@ -51,6 +55,8 @@ kartbusiness -u            # update/sync local database with new cards.
 			searchCards(search)
 		} else if update {
 			syncData(db)
+		} else if card > 0 {
+			showACardById(db, card)
 		} else {
 			fmt.Println("KartBusiness : see all digital business cards published on KartBusiness.com")
 			showOneCards(db)
@@ -159,6 +165,95 @@ func showOneCards(db *sql.DB) {
 		}
 
 		fmt.Println("\n██████████████████████████████")
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func showACardById(db *sql.DB, card int) {
+	rows, err := db.Query(`SELECT * FROM cards WHERE id == ? LIMIT 1;`, card)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var id, cat_id, country_id, gov_id, city_id int
+	var slug, name, slogan, mob, whatsapp, mail, web, blog, created_at, updated_at interface{}
+
+	for rows.Next() {
+		if err := rows.Scan(
+			&id, &cat_id, &country_id, &gov_id, &city_id,
+			&slug, &name, &slogan, &mob, &whatsapp, &mail, &web, &blog,
+			&created_at, &updated_at,
+		); err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("\n+----------------------------+")
+
+		nameLength, _ := getStringLength(name)
+		spaces := (30 - nameLength) / 2
+
+		for i := 0; i < spaces; i++ {
+			fmt.Printf(" ")
+		}
+		fmt.Printf("%v", name)
+		for i := 0; i < spaces; i++ {
+			fmt.Printf(" ")
+		}
+
+		fmt.Println()
+
+		sloganLength, _ := getStringLength(slogan)
+		spaces = (30 - sloganLength - 2) / 2
+
+		fmt.Printf("|")
+		for i := 0; i < spaces; i++ {
+			fmt.Printf(" ")
+		}
+		fmt.Printf("%v", slogan)
+		for i := 0; i < spaces; i++ {
+			fmt.Printf(" ")
+		}
+		fmt.Printf("|")
+
+		fmt.Println("\n+                            +")
+
+		var mobLength int
+		if mob != nil && mob != "" {
+			mobLength, _ = getStringLength(mob)
+		} else {
+			mobLength = 10
+			mob = "0000000000"
+		}
+
+		var waLength int
+		if whatsapp != nil && whatsapp != "" {
+			waLength, _ = getStringLength(whatsapp)
+		} else {
+			waLength = 10
+			whatsapp = "0000000000"
+		}
+
+		mobWhatsappLength := mobLength + waLength
+
+		if mobWhatsappLength < 30 {
+			spaces = (30 - mobWhatsappLength - 3) / 2
+			fmt.Printf("|")
+			for i := 0; i < spaces; i++ {
+				fmt.Printf(" ")
+			}
+			fmt.Printf("%v ", mob)
+			fmt.Printf("%v", whatsapp)
+			for i := 0; i < spaces; i++ {
+				fmt.Printf(" ")
+			}
+			fmt.Printf("|")
+		}
+
+		fmt.Println("\n+----------------------------+")
 	}
 
 	if err := rows.Err(); err != nil {
