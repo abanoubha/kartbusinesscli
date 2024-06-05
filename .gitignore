@@ -4,3 +4,6 @@ main
 
 # macOS specific files
 .DS_Store
+
+# database
+data.db
