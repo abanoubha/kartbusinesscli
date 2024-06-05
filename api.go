@@ -3,20 +3,17 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-var db *sql.DB
-
 type ApiResponse struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
-func getCards() {
+func getCards(db *sql.DB) {
 	resp, err := http.Get("https://kartbusiness.com/api/v1/index?page=1")
 
 	if err != nil {
@@ -42,8 +39,6 @@ func getCards() {
 	}
 
 	// fmt.Printf("type: %T", apiResponse.Data)
-
-	card := make(map[string]interface{})
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -142,6 +137,27 @@ func getCards() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
 
-	fmt.Println(card)
+func initializeLocalDatabase(db *sql.DB) {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS cards (
+        id INTEGER PRIMARY KEY UNIQUE,
+        cat_id INTEGER,
+        country_id	INTEGER,
+        gov_id INTEGER,
+        city_id INTEGER,
+        slug TEXT,
+        name TEXT,
+        slogan TEXT,
+        mob TEXT,
+        whatsapp TEXT,
+        mail TEXT,
+        web TEXT,
+        blog TEXT,
+        created_at TEXT,
+        updated_at TEXT
+    );`)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

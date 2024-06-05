@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +16,14 @@ var (
 )
 
 func main() {
+	var db *sql.DB
+	db, err := sql.Open("sqlite3", "data.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	initializeLocalDatabase(db)
+
 	rootCmd := &cobra.Command{
 		Use:   "kartbusiness",
 		Short: "See all digital business cards published on KartBusiness.com",
@@ -37,7 +48,7 @@ kartbusiness -u            # update/sync local database with new cards.
 		} else if search != "" {
 			searchCards(search)
 		} else if update {
-			syncData()
+			syncData(db)
 		} else {
 			fmt.Println("KartBusiness : see all digital business cards published on KartBusiness.com")
 			showAllCards()
@@ -57,6 +68,7 @@ func searchCards(search string) {
 	fmt.Println("cards containing ", search)
 }
 
-func syncData() {
-	getCards()
+func syncData(db *sql.DB) {
+	getCards(db)
+	fmt.Println("saved top 50 cards into local database")
 }
