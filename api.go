@@ -10,7 +10,7 @@ import (
 )
 
 type ApiResponse struct {
-	Data []map[string]interface{} `json:"data"`
+	Data []map[string]any `json:"data"`
 }
 
 func getCards(db *sql.DB) {

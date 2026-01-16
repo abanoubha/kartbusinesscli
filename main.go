@@ -180,7 +180,7 @@ func showACardById(db *sql.DB, card int) {
 	defer rows.Close()
 
 	var id, cat_id, country_id, gov_id, city_id int
-	var slug, name, slogan, mob, whatsapp, mail, web, blog, created_at, updated_at interface{}
+	var slug, name, slogan, mob, whatsapp, mail, web, blog, created_at, updated_at any
 
 	for rows.Next() {
 		if err := rows.Scan(
@@ -261,7 +261,7 @@ func showACardById(db *sql.DB, card int) {
 	}
 }
 
-func getStringLength(s interface{}) (int, error) {
+func getStringLength(s any) (int, error) {
 	rv := reflect.ValueOf(s)
 	switch rv.Kind() {
 	case reflect.String:
